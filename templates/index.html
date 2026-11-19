@@ -1,0 +1,1414 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" id="htmlRoot" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مذاكرتي — مساحة العمل الدراسية</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'IBM Plex Sans Arabic', sans-serif;
+            transition: background-color 0.2s ease, color 0.2s ease;
+        }
+        .num {
+            font-variant-numeric: tabular-nums;
+        }
+        .panel-dark {
+            background: #111114;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .panel-light {
+            background: #ffffff;
+            border: 1px solid rgba(15, 23, 42, 0.08);
+            box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
+        }
+        .input-dark {
+            background: #09090b;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #f4f4f5;
+        }
+        .input-light {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            color: #0f172a;
+        }
+        .trial-blur {
+            filter: blur(3.5px);
+            user-select: none;
+            pointer-events: none;
+            opacity: 0.65;
+        }
+        @media print {
+            @page { size: A4 landscape; margin: 10mm; }
+            body { background: #fff !important; color: #000 !important; }
+            .no-print { display: none !important; }
+            .panel-dark, .panel-light { background: #fff !important; border: 1px solid #ddd !important; color: #000 !important; box-shadow: none !important; }
+        }
+    </style>
+</head>
+<body id="bodyTheme" class="bg-[#09090b] text-zinc-100 min-h-screen selection:bg-indigo-500 selection:text-white">
+
+    <!-- Toast Container (z-[60] to stay above modals) -->
+    <div id="toastContainer" class="fixed top-5 left-1/2 -translate-x-1/2 z-[60] flex flex-col gap-2 pointer-events-none"></div>
+
+    <!-- Landing / Welcome Screen -->
+    <div id="landingOverlay" class="fixed inset-0 bg-[#09090b] z-40 overflow-y-auto flex items-center justify-center p-4">
+        <div class="w-full max-w-5xl panel-dark rounded-2xl p-6 sm:p-10 space-y-8 my-auto">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+                <div class="lg:col-span-7 space-y-5 text-right">
+                    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">
+                        <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
+                        <span>منصة الدراسة المسائية • البكالوريا والطور الثانوي</span>
+                    </div>
+
+                    <h1 class="text-2xl sm:text-4xl font-bold tracking-tight text-white leading-snug">
+                        نظّم مراجعتك اليومية بهدوء ووضوح
+                    </h1>
+
+                    <p class="text-sm text-zinc-400 leading-relaxed">
+                        مساحة عمل مصممة لطلاب الثانوي والبكالوريا لترتيب الحصص المسائية بعد الدوام، تتبع نسبة الإنجاز الأسبوعية، وحفظ روابط الدروس والمراجع في مكان واحد.
+                    </p>
+
+                    <div class="flex flex-wrap gap-3 pt-1">
+                        <button onclick="openAuthModal()" class="px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs sm:text-sm font-semibold transition flex items-center gap-2">
+                            <i data-lucide="log-in" class="w-4 h-4"></i>
+                            <span>دخول أو اشتراك فليكسي</span>
+                        </button>
+                        <button onclick="startFreeTrial()" class="px-5 py-2.5 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-zinc-200 text-xs sm:text-sm font-semibold border border-white/10 transition flex items-center gap-2">
+                            <i data-lucide="play" class="w-4 h-4"></i>
+                            <span>تجربة مجانية</span>
+                        </button>
+                    </div>
+
+                    <div class="pt-4 border-t border-white/10 flex items-center justify-between text-xs text-zinc-500">
+                        <span class="font-mono">M.ECHIKR MOHAMED-AMIR</span>
+                        <button onclick="openAdminLoginModal()" class="text-zinc-400 hover:text-indigo-400 font-semibold flex items-center gap-1.5 transition">
+                            <i data-lucide="shield" class="w-3.5 h-3.5"></i>
+                            <span>لوحة الإدارة</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="lg:col-span-5 space-y-3">
+                    <div class="p-4 rounded-xl bg-zinc-900/90 border border-white/10 space-y-2">
+                        <div class="flex items-center justify-between text-xs text-zinc-400">
+                            <span>جلسة مسائية</span>
+                            <span class="text-emerald-400 font-semibold num">18:30 - 20:30</span>
+                        </div>
+                        <div class="text-sm font-bold text-white">مراجعة مركزة + حل تمارين</div>
+                        <div class="h-1.5 w-full bg-zinc-800 rounded-full overflow-hidden">
+                            <div class="h-full w-3/4 bg-indigo-500 rounded-full"></div>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div class="p-4 rounded-xl bg-zinc-900/90 border border-white/10">
+                            <div class="text-[11px] text-zinc-400">مؤقت التركيز</div>
+                            <div class="text-lg font-bold text-white num mt-1">25:00</div>
+                        </div>
+                        <div class="p-4 rounded-xl bg-zinc-900/90 border border-white/10 space-y-1">
+                            <div class="text-[11px] text-zinc-400">باقات فليكسي</div>
+                            <div class="text-xs font-bold text-emerald-400 num">350 DA / 3 أشهر</div>
+                            <div class="text-xs font-bold text-indigo-400 num">700 DA / سنة كاملة</div>
+                            <div class="text-[10px] font-mono text-zinc-400 pt-0.5">0775957476</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- How It Works & Time Management Guide -->
+            <div class="pt-6 border-t border-white/10 space-y-4 text-right">
+                <div class="flex flex-wrap items-center justify-between gap-2">
+                    <h2 class="text-sm sm:text-base font-bold text-white flex items-center gap-2">
+                        <i data-lucide="compass" class="w-4 h-4 text-indigo-400"></i>
+                        <span>كيف يعمل الموقع وكيف يساعدك على تنظيم وقتك؟</span>
+                    </h2>
+                    <span class="text-[11px] text-zinc-400">مصمم لبرنامج المراجعة اليومية بعد الدوام</span>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
+                    <div class="p-4 rounded-xl bg-zinc-900/75 border border-white/10 space-y-1.5">
+                        <div class="font-bold text-indigo-300 flex items-center gap-1.5">
+                            <i data-lucide="layers" class="w-4 h-4"></i>
+                            <span>1. توزيع المواد حسب الشعبة</span>
+                        </div>
+                        <p class="text-zinc-400 leading-relaxed">
+                            يولّد جدولاً أسبوعياً يوازن بين المواد الأساسية ذات المعامل الأعلى والمواد الثانوية، فتمنح كل مادة حقها دون إهمال أو تكديس عشوائي.
+                        </p>
+                    </div>
+
+                    <div class="p-4 rounded-xl bg-zinc-900/75 border border-white/10 space-y-1.5">
+                        <div class="font-bold text-emerald-300 flex items-center gap-1.5">
+                            <i data-lucide="clock-3" class="w-4 h-4"></i>
+                            <span>2. فترات مسائية محددة + بومودورو</span>
+                        </div>
+                        <p class="text-zinc-400 leading-relaxed">
+                            يقسّم يومك إلى حصص زمنية واضحة مع مؤقت التركيز <span class="num font-semibold text-zinc-200">25:00</span> لتفادي التشتت والمماطلة، وحفظ روابط الدروس والملاحظات في نفس البطاقة.
+                        </p>
+                    </div>
+
+                    <div class="p-4 rounded-xl bg-zinc-900/75 border border-white/10 space-y-1.5">
+                        <div class="font-bold text-amber-300 flex items-center gap-1.5">
+                            <i data-lucide="trending-up" class="w-4 h-4"></i>
+                            <span>3. متابعة الإنجاز والاستمرارية</span>
+                        </div>
+                        <p class="text-zinc-400 leading-relaxed">
+                            كل مهمة تُنجزها ترفع نسبة الإنجاز الأسبوعي وساعات الدراسة والـ Streak اليومي، مما يمنحك رؤية واقعية لتقدّمك قبل امتحانات الفصل والبكالوريا.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Login Modal -->
+    <div id="adminLoginModal" class="fixed inset-0 bg-black/75 backdrop-blur-xs z-50 hidden items-center justify-center p-4">
+        <div class="panel-dark max-w-sm w-full rounded-2xl p-6 space-y-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2 font-bold text-sm text-white">
+                    <i data-lucide="shield-check" class="w-4 h-4 text-indigo-400"></i>
+                    <span>دخول المدير</span>
+                </div>
+                <button onclick="closeAdminLoginModal()" class="text-zinc-400 hover:text-white text-xs">إغلاق</button>
+            </div>
+
+            <div class="relative">
+                <input type="password" id="adminPasswordInput" class="input-dark w-full p-2.5 pl-9 rounded-xl text-xs outline-none focus:border-indigo-500" placeholder="كلمة مرور المدير">
+                <button type="button" onclick="togglePassVisibility('adminPasswordInput', this)" class="absolute left-3 top-2.5 text-zinc-400 hover:text-white">
+                    <i data-lucide="eye" class="w-4 h-4"></i>
+                </button>
+            </div>
+
+            <button onclick="handleAdminLogin()" class="w-full py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-xs transition">
+                دخول إلى اللوحة
+            </button>
+        </div>
+    </div>
+
+    <!-- Admin Dashboard Modal -->
+    <div id="adminPanelModal" class="fixed inset-0 bg-[#09090b]/95 backdrop-blur-sm z-50 hidden p-4 sm:p-6 overflow-y-auto">
+        <div class="max-w-6xl mx-auto panel-dark rounded-2xl p-6 space-y-6 my-4">
+            <div class="flex flex-wrap items-center justify-between gap-3 pb-4 border-b border-white/10">
+                <div>
+                    <h2 class="text-lg font-bold text-white">لوحة الإدارة والإحصائيات</h2>
+                    <p class="text-xs text-zinc-400">إدارة الحسابات، الباقات، وصولات الفليكسي، عناوين IP، وسجل الدخول</p>
+                </div>
+                <button onclick="closeAdminPanel()" class="px-3.5 py-2 rounded-xl bg-rose-600 hover:bg-rose-500 text-white text-xs font-semibold transition">
+                    إغلاق اللوحة
+                </button>
+            </div>
+
+            <div class="grid grid-cols-2 sm:grid-cols-5 gap-3">
+                <div class="p-4 rounded-xl bg-zinc-900/90 border border-white/10">
+                    <div class="text-xs text-zinc-400">المسجلون</div>
+                    <div id="admStatTotal" class="text-xl font-bold text-white num mt-1">0</div>
+                </div>
+                <div class="p-4 rounded-xl bg-zinc-900/90 border border-white/10">
+                    <div class="text-xs text-emerald-400">مفعلون</div>
+                    <div id="admStatActive" class="text-xl font-bold text-emerald-400 num mt-1">0</div>
+                </div>
+                <div class="p-4 rounded-xl bg-zinc-900/90 border border-white/10">
+                    <div class="text-xs text-amber-400">معلقون</div>
+                    <div id="admStatPending" class="text-xl font-bold text-amber-400 num mt-1">0</div>
+                </div>
+                <div class="p-4 rounded-xl bg-zinc-900/90 border border-white/10">
+                    <div class="text-xs text-sky-400">بوصل فليكسي</div>
+                    <div id="admStatReceipt" class="text-xl font-bold text-sky-400 num mt-1">0</div>
+                </div>
+                <div class="p-4 rounded-xl bg-zinc-900/90 border border-white/10 col-span-2 sm:col-span-1">
+                    <div class="text-xs text-indigo-400">مرات الدخول</div>
+                    <div id="admStatLogins" class="text-xl font-bold text-indigo-400 num mt-1">0</div>
+                </div>
+            </div>
+
+            <div class="overflow-x-auto rounded-xl border border-white/10">
+                <table class="w-full text-right text-xs">
+                    <thead class="bg-zinc-900 text-zinc-400 border-b border-white/10">
+                        <tr>
+                            <th class="p-3">الاسم</th>
+                            <th class="p-3">الهاتف</th>
+                            <th class="p-3">الباقة</th>
+                            <th class="p-3">IP</th>
+                            <th class="p-3">آخر دخول / الجهاز</th>
+                            <th class="p-3">الوصل</th>
+                            <th class="p-3">الحالة</th>
+                            <th class="p-3">إجراء</th>
+                        </tr>
+                    </thead>
+                    <tbody id="adminUsersTableBody" class="divide-y divide-white/5"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Auth Modal -->
+    <div id="authModal" class="fixed inset-0 bg-black/75 backdrop-blur-xs z-50 hidden items-center justify-center p-4">
+        <div class="panel-dark max-w-md w-full rounded-2xl p-6 space-y-4 max-h-[92vh] overflow-y-auto">
+            <div class="flex items-center justify-between text-xs">
+                <button onclick="closeAuthModal()" class="text-zinc-400 hover:text-white flex items-center gap-1">
+                    <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+                    <span>رجوع</span>
+                </button>
+                <span class="text-emerald-400 font-semibold flex items-center gap-1">
+                    <i data-lucide="lock" class="w-3.5 h-3.5"></i>
+                    <span>اتصال محمي</span>
+                </span>
+            </div>
+
+            <div class="grid grid-cols-2 bg-zinc-900 p-1 rounded-xl border border-white/10 text-xs font-semibold">
+                <button onclick="switchAuthTab('login')" id="tabLogin" class="py-2 rounded-lg bg-indigo-600 text-white transition">تسجيل الدخول</button>
+                <button onclick="switchAuthTab('register')" id="tabRegister" class="py-2 rounded-lg text-zinc-400 hover:text-white transition">اشتراك فليكسي</button>
+            </div>
+
+            <!-- Login Form -->
+            <form id="formLogin" onsubmit="event.preventDefault(); handleLogin();" class="space-y-3">
+                <div>
+                    <label class="block text-xs font-medium text-zinc-300 mb-1">رقم الهاتف</label>
+                    <input type="tel" id="loginIdentifier" required maxlength="10" pattern="0[567][0-9]{8}" class="input-dark w-full p-2.5 rounded-xl text-xs outline-none focus:border-indigo-500" placeholder="07XXXXXXXX">
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-zinc-300 mb-1">كلمة المرور</label>
+                    <div class="relative">
+                        <input type="password" id="loginPassword" required class="input-dark w-full p-2.5 pl-9 rounded-xl text-xs outline-none focus:border-indigo-500" placeholder="••••••••">
+                        <button type="button" onclick="togglePassVisibility('loginPassword', this)" class="absolute left-3 top-2.5 text-zinc-400 hover:text-white">
+                            <i data-lucide="eye" class="w-4 h-4"></i>
+                        </button>
+                    </div>
+                </div>
+                <button type="submit" id="loginSubmitBtn" class="w-full py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-xs transition">
+                    دخول
+                </button>
+            </form>
+
+            <!-- Register Form -->
+            <form id="formRegister" onsubmit="event.preventDefault(); handleRegister();" class="space-y-3 hidden">
+                <div>
+                    <label class="block text-xs font-medium text-zinc-300 mb-1">الاسم الكامل</label>
+                    <input type="text" id="regName" required minlength="3" maxlength="60" class="input-dark w-full p-2.5 rounded-xl text-xs outline-none focus:border-indigo-500" placeholder="الاسم الكامل">
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-zinc-300 mb-1">رقم الهاتف الحقيقي</label>
+                    <input type="tel" id="regPhone" required maxlength="10" pattern="0[567][0-9]{8}" class="input-dark w-full p-2.5 rounded-xl text-xs outline-none focus:border-indigo-500" placeholder="07XXXXXXXX">
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-zinc-300 mb-1">كلمة المرور</label>
+                    <div class="relative">
+                        <input type="password" id="regPassword" required minlength="8" oninput="checkPasswordStrength(this.value)" class="input-dark w-full p-2.5 pl-9 rounded-xl text-xs outline-none focus:border-indigo-500" placeholder="8 أحرف + حروف وأرقام">
+                        <button type="button" onclick="togglePassVisibility('regPassword', this)" class="absolute left-3 top-2.5 text-zinc-400 hover:text-white">
+                            <i data-lucide="eye" class="w-4 h-4"></i>
+                        </button>
+                    </div>
+                    <div class="mt-1.5 space-y-1">
+                        <div class="w-full bg-zinc-800 h-1.5 rounded-full overflow-hidden">
+                            <div id="passStrengthBar" class="h-full w-0 transition-all duration-300 bg-rose-500"></div>
+                        </div>
+                        <div id="passStrengthText" class="text-[10px] text-zinc-400">قوة كلمة المرور: غير مدخلة</div>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-medium text-zinc-300 mb-1">اختر باقة الاشتراك</label>
+                    <select id="regPlan" class="input-dark w-full p-2.5 rounded-xl text-xs font-semibold outline-none focus:border-indigo-500">
+                        <option value="3m_350da" selected>3 أشهر — 350 DA</option>
+                        <option value="1y_700da">سنة كاملة — 700 DA</option>
+                    </select>
+                </div>
+
+                <div class="p-3 rounded-xl bg-indigo-500/10 border border-indigo-500/20 text-xs space-y-2">
+                    <div class="font-semibold text-indigo-300">الدفع عبر فليكسي (Flexy)</div>
+                    <div class="grid grid-cols-2 gap-2 text-[11px] num">
+                        <div class="p-2 rounded-lg bg-zinc-900/90 border border-white/10">
+                            <div class="text-zinc-400">3 أشهر</div>
+                            <div class="font-bold text-emerald-400 mt-0.5">350 DA</div>
+                        </div>
+                        <div class="p-2 rounded-lg bg-zinc-900/90 border border-white/10">
+                            <div class="text-zinc-400">سنة كاملة</div>
+                            <div class="font-bold text-indigo-400 mt-0.5">700 DA</div>
+                        </div>
+                    </div>
+                    <div class="text-[11px] text-zinc-300">
+                        أرسل المبلغ إلى الرقم: <span class="font-mono font-bold text-white select-all">0775957476</span> (موبيليس / جيزي / أوريدو)
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-medium text-zinc-300 mb-1">صورة إثبات الفليكسي</label>
+                    <input type="file" id="regReceipt" accept="image/png,image/jpeg,image/webp" class="input-dark w-full p-1.5 rounded-xl text-xs file:mr-2 file:py-1 file:px-2.5 file:rounded-lg file:border-0 file:bg-indigo-500/15 file:text-indigo-300">
+                </div>
+
+                <div class="p-3 rounded-xl bg-zinc-900 border border-white/10 text-[11px] text-zinc-400 space-y-2">
+                    <p class="leading-relaxed">
+                        احفظ رقم الهاتف وكلمة المرور بدقة؛ لا تتحمل الإدارة مسؤولية فقدانهما، والحساب يعمل على جهاز واحد فقط.
+                    </p>
+                    <label class="flex items-center gap-2 cursor-pointer text-zinc-200 font-medium">
+                        <input type="checkbox" id="acceptTerms" required class="w-4 h-4 rounded accent-indigo-500">
+                        <span>أوافق على الشروط وإخلاء المسؤولية</span>
+                    </label>
+                    <label class="flex items-center gap-2 cursor-pointer text-zinc-200 font-medium">
+                        <input type="checkbox" id="notRobot" required class="w-4 h-4 rounded accent-indigo-500">
+                        <span>أنا لست روبوت</span>
+                    </label>
+                </div>
+
+                <div id="regErrorBox" class="hidden p-2.5 rounded-xl bg-rose-500/15 border border-rose-500/30 text-rose-300 text-xs font-semibold"></div>
+
+                <button type="submit" id="regSubmitBtn" class="w-full py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-xs transition">
+                    إرسال طلب الاشتراك
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Main App Layout (Sidebar + Workspace) -->
+    <div class="min-h-screen flex flex-col lg:flex-row">
+
+        <!-- Sidebar -->
+        <aside id="sidebarPanel" class="panel-dark lg:w-64 lg:min-h-screen p-4 flex flex-col justify-between gap-6 no-print">
+            <div class="space-y-6">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-2.5">
+                        <div class="w-9 h-9 rounded-xl bg-indigo-600 text-white flex items-center justify-center font-bold">
+                            <i data-lucide="graduation-cap" class="w-4 h-4"></i>
+                        </div>
+                        <div>
+                            <div class="text-sm font-bold leading-tight">مذاكرتي</div>
+                            <div class="text-[11px] opacity-60">بكالوريا • ثانوي</div>
+                        </div>
+                    </div>
+                </div>
+
+                <nav class="space-y-1 text-xs font-semibold">
+                    <button onclick="switchSection('planner')" id="nav-planner" class="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl bg-indigo-600/15 text-indigo-400 transition">
+                        <i data-lucide="calendar-check" class="w-4 h-4"></i>
+                        <span>الجدول والمهام</span>
+                    </button>
+                    <button onclick="switchSection('setup')" id="nav-setup" class="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl opacity-75 hover:opacity-100 hover:bg-white/5 transition">
+                        <i data-lucide="sliders-horizontal" class="w-4 h-4"></i>
+                        <span>الشعبة والجدول المدرسي</span>
+                    </button>
+                    <button onclick="switchSection('tools')" id="nav-tools" class="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl opacity-75 hover:opacity-100 hover:bg-white/5 transition">
+                        <i data-lucide="folder-down" class="w-4 h-4"></i>
+                        <span>النسخ والطباعة</span>
+                    </button>
+                </nav>
+
+                <!-- Mini Progress Box -->
+                <div class="p-3.5 rounded-xl bg-white/[0.03] border border-white/10 space-y-2">
+                    <div class="flex items-center justify-between text-xs">
+                        <span class="opacity-70">الإنجاز الأسبوعي</span>
+                        <span id="weeklyProgressText" class="font-bold text-indigo-400 num">0%</span>
+                    </div>
+                    <div class="w-full h-1.5 rounded-full bg-zinc-800 overflow-hidden">
+                        <div id="weeklyProgressBar" class="h-full bg-indigo-500 rounded-full transition-all duration-300" style="width: 0%"></div>
+                    </div>
+                </div>
+
+                <!-- Trial Upgrade Notice -->
+                <div id="trialUpgradeBanner" class="hidden p-3.5 rounded-xl bg-amber-500/10 border border-amber-500/25 space-y-2 text-xs">
+                    <div class="font-bold text-amber-300 flex items-center gap-1.5">
+                        <i data-lucide="lock" class="w-3.5 h-3.5"></i>
+                        <span>وضع التجربة المجانية</span>
+                    </div>
+                    <p class="text-[11px] text-amber-200/80 leading-relaxed">
+                        أوقات الحصص والخيارات المتقدمة مشوّشة مؤقتاً. فعّل اشتراكك بـ <span class="font-bold num">350 DA</span> (3 أشهر) أو <span class="font-bold num">700 DA</span> (سنة).
+                    </p>
+                    <button onclick="openAuthModal(); switchAuthTab('register');" class="w-full py-1.5 rounded-lg bg-amber-500 hover:bg-amber-400 text-zinc-950 font-bold text-[11px] transition">
+                        ترقية الحساب الآن
+                    </button>
+                </div>
+            </div>
+
+            <div class="space-y-3 pt-4 border-t border-white/10 text-xs">
+                <div class="flex items-center justify-between">
+                    <span class="opacity-70">المشترك</span>
+                    <span id="currentUserName" class="font-bold truncate max-w-[130px]">طالب</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button onclick="toggleThemeMode()" class="flex-1 py-2 px-2.5 rounded-xl bg-white/5 hover:bg-white/10 font-semibold flex items-center justify-center gap-1.5 transition">
+                        <i id="themeIcon" data-lucide="moon" class="w-3.5 h-3.5"></i>
+                        <span id="themeBtnText">داكن</span>
+                    </button>
+                    <button onclick="handleLogout()" title="تسجيل الخروج" class="py-2 px-3 rounded-xl bg-rose-600/15 hover:bg-rose-600/25 text-rose-400 font-semibold transition">
+                        <i data-lucide="log-out" class="w-3.5 h-3.5"></i>
+                    </button>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Workspace -->
+        <div class="flex-1 flex flex-col justify-between min-w-0">
+            <div class="max-w-6xl mx-auto w-full p-4 sm:p-6 space-y-6">
+
+                <!-- Top Bar -->
+                <header class="flex flex-wrap items-center justify-between gap-3 no-print">
+                    <div>
+                        <h1 id="sectionHeading" class="text-xl font-bold">الجدول والمهام المسائية</h1>
+                        <p class="text-xs opacity-65">تركيز بعد الدوام المدرسي للتحضير المنظم</p>
+                    </div>
+
+                    <div class="flex items-center gap-2.5">
+                        <!-- Streak -->
+                        <div class="px-3 py-1.5 rounded-xl panel-dark text-xs flex items-center gap-1.5 num">
+                            <i data-lucide="flame" class="w-3.5 h-3.5 text-amber-400"></i>
+                            <span id="streakCount" class="font-semibold">0d</span>
+                        </div>
+
+                        <!-- Bac Countdown -->
+                        <div class="px-3 py-1.5 rounded-xl panel-dark text-xs flex items-center gap-1.5 num">
+                            <i data-lucide="clock" class="w-3.5 h-3.5 text-indigo-400"></i>
+                            <span id="countdownTimer" class="font-semibold">--</span>
+                        </div>
+
+                        <!-- Pomodoro Dropdown -->
+                        <div class="relative">
+                            <button onclick="togglePomodoroMenu()" class="px-3 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold flex items-center gap-1.5 transition num">
+                                <i data-lucide="timer" class="w-3.5 h-3.5"></i>
+                                <span id="pomodoroDisplay">25:00</span>
+                            </button>
+                            <div id="pomodoroMenu" class="hidden absolute left-0 mt-2 w-52 panel-dark rounded-xl p-3 space-y-2.5 z-30 shadow-2xl">
+                                <div class="text-[11px] opacity-70 font-semibold">مؤقت التركيز (Pomodoro)</div>
+                                <div class="grid grid-cols-3 gap-1.5 text-xs font-semibold">
+                                    <button onclick="startPomodoro()" class="py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white">بدء</button>
+                                    <button onclick="pausePomodoro()" class="py-1.5 rounded-lg bg-amber-600 hover:bg-amber-500 text-white">إيقاف</button>
+                                    <button onclick="resetPomodoro()" class="py-1.5 rounded-lg bg-zinc-700 hover:bg-zinc-600 text-white">إعادة</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </header>
+
+                <!-- KPI Strip -->
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                    <div class="panel-dark rounded-xl p-3.5">
+                        <div class="text-[11px] opacity-65">إجمالي المهام</div>
+                        <div id="statTotalTasks" class="text-lg font-bold num mt-0.5">0</div>
+                    </div>
+                    <div class="panel-dark rounded-xl p-3.5">
+                        <div class="text-[11px] text-emerald-400">المهام المنجزة</div>
+                        <div id="statCompletedTasks" class="text-lg font-bold text-emerald-400 num mt-0.5">0</div>
+                    </div>
+                    <div class="panel-dark rounded-xl p-3.5">
+                        <div class="text-[11px] text-indigo-400">ساعات الإنجاز</div>
+                        <div id="statCompletedHours" class="text-lg font-bold text-indigo-400 num mt-0.5">0h</div>
+                    </div>
+                    <div class="panel-dark rounded-xl p-3.5">
+                        <div class="text-[11px] text-amber-400">الاستمرارية</div>
+                        <div id="statStreakDays" class="text-lg font-bold text-amber-400 num mt-0.5">0d</div>
+                    </div>
+                </div>
+
+                <!-- SECTION 1: PLANNER -->
+                <section id="section-planner" class="space-y-4">
+                    <!-- Day Tabs -->
+                    <div id="dayTabsBar" class="flex items-center gap-1.5 overflow-x-auto pb-1 no-print"></div>
+
+                    <!-- Days Grid -->
+                    <div id="daysContainer" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4"></div>
+                </section>
+
+                <!-- SECTION 2: SETUP & TIMETABLE -->
+                <section id="section-setup" class="hidden grid-cols-1 lg:grid-cols-2 gap-4">
+                    <div class="panel-dark rounded-2xl p-5 space-y-4">
+                        <h2 class="text-sm font-bold flex items-center gap-2">
+                            <i data-lucide="book-open" class="w-4 h-4 text-indigo-400"></i>
+                            <span>المستوى والشعبة الدراسية</span>
+                        </h2>
+
+                        <div class="space-y-3">
+                            <div>
+                                <label class="block text-xs opacity-75 mb-1">السنة الدراسية</label>
+                                <select id="schoolYear" class="input-dark w-full p-2.5 rounded-xl text-xs font-semibold outline-none focus:border-indigo-500">
+                                    <option value="1AS">السنة الأولى ثانوي (1AS)</option>
+                                    <option value="2AS">السنة الثانية ثانوي (2AS)</option>
+                                    <option value="3AS" selected>السنة الثالثة ثانوي (3AS - بكالوريا)</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs opacity-75 mb-1">الشعبة</label>
+                                <select id="schoolStream" class="input-dark w-full p-2.5 rounded-xl text-xs font-semibold outline-none focus:border-indigo-500">
+                                    <option value="science" selected>علوم تجريبية</option>
+                                    <option value="math">رياضيات</option>
+                                    <option value="tech_math">تقني رياضي</option>
+                                    <option value="gestion">تسيير واقتصاد</option>
+                                    <option value="letters">آداب وفلسفة</option>
+                                    <option value="languages">لغات أجنبية</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <button onclick="updateStreamMaterials()" class="w-full py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold transition">
+                            تحديث المواد وتوليد الأسبوع
+                        </button>
+                    </div>
+
+                    <div id="trialTimetableBox" class="panel-dark rounded-2xl p-5 space-y-4 relative">
+                        <div class="flex items-center justify-between">
+                            <h2 class="text-sm font-bold flex items-center gap-2">
+                                <i data-lucide="image" class="w-4 h-4 text-indigo-400"></i>
+                                <span>جدول المدرسة والملاحظات</span>
+                            </h2>
+                            <span id="trialTimetableBadge" class="hidden text-[10px] px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-300 font-semibold">مشوّش في التجربة</span>
+                        </div>
+
+                        <div id="trialTimetableContent" class="space-y-4">
+                            <div class="space-y-3">
+                                <div>
+                                    <label class="block text-xs opacity-75 mb-1">صورة جدول التوقيت</label>
+                                    <input type="file" id="timetableImageInput" accept="image/*" class="input-dark w-full p-2 rounded-xl text-xs file:mr-2 file:py-1 file:px-2.5 file:rounded-lg file:border-0 file:bg-indigo-500/15 file:text-indigo-300">
+                                </div>
+                                <div>
+                                    <label class="block text-xs opacity-75 mb-1">ملاحظات للمراجعة</label>
+                                    <input type="text" id="aiNotes" placeholder="مثال: تركيز على الوحدة الأولى" class="input-dark w-full p-2.5 rounded-xl text-xs outline-none focus:border-indigo-500">
+                                </div>
+                            </div>
+
+                            <div class="flex gap-2">
+                                <button onclick="analyzeTimetableWithAI()" class="flex-1 py-2.5 px-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold transition">
+                                    حفظ الجدول وتوليد المهام
+                                </button>
+                                <button onclick="generateWeeklyPlan()" class="py-2.5 px-3 rounded-xl bg-white/5 hover:bg-white/10 text-xs font-semibold transition">
+                                    إعادة توليد
+                                </button>
+                            </div>
+                        </div>
+
+                        <div id="imagePreviewContainer" class="hidden p-2.5 rounded-xl bg-white/[0.03] border border-white/10 flex items-center justify-between text-xs">
+                            <span class="text-emerald-400 font-semibold">صورة الجدول محفوظة</span>
+                            <button onclick="viewFullImage()" class="text-indigo-400 hover:underline font-semibold">معاينة</button>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- SECTION 3: BACKUP & PRINT -->
+                <section id="section-tools" class="hidden panel-dark rounded-2xl p-5 space-y-4">
+                    <div class="flex items-center justify-between">
+                        <h2 class="text-sm font-bold flex items-center gap-2">
+                            <i data-lucide="hard-drive" class="w-4 h-4 text-indigo-400"></i>
+                            <span>النسخ الاحتياطي والطباعة</span>
+                        </h2>
+                        <span id="trialToolsBadge" class="hidden text-[10px] px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-300 font-semibold">مشوّش في التجربة</span>
+                    </div>
+                    <p class="text-xs opacity-70">صدّر نسخة JSON من جدولك ومهامك أو اطبع الجدول مباشرة.</p>
+
+                    <div id="trialToolsContent" class="flex flex-wrap gap-2.5 no-print">
+                        <button onclick="exportDataJSON()" class="px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold flex items-center gap-1.5 transition">
+                            <i data-lucide="download" class="w-3.5 h-3.5"></i>
+                            <span>تصدير JSON</span>
+                        </button>
+                        <label class="px-4 py-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-xs font-semibold flex items-center gap-1.5 cursor-pointer transition">
+                            <i data-lucide="upload" class="w-3.5 h-3.5"></i>
+                            <span>استيراد JSON</span>
+                            <input type="file" id="importFile" accept=".json" onchange="importDataJSON(event)" class="hidden">
+                        </label>
+                        <button onclick="window.print()" class="px-4 py-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-xs font-semibold flex items-center gap-1.5 transition">
+                            <i data-lucide="printer" class="w-3.5 h-3.5"></i>
+                            <span>طباعة A4</span>
+                        </button>
+                    </div>
+                </section>
+
+            </div>
+
+            <footer class="py-4 px-6 text-center text-[11px] opacity-55 font-mono no-print">
+                Developed by M.ECHIKR MOHAMED-AMIR
+            </footer>
+        </div>
+    </div>
+
+    <!-- Image Preview Modal -->
+    <div id="imageModal" class="fixed inset-0 bg-black/85 hidden z-50 items-center justify-center p-4" onclick="closeImageModal()">
+        <div class="relative max-w-4xl max-h-[90vh]">
+            <img id="modalImgSrc" class="rounded-2xl max-h-[85vh] object-contain border border-white/15">
+            <button class="absolute top-3 left-3 bg-rose-600 text-white px-3 py-1 rounded-xl font-semibold text-xs">إغلاق</button>
+        </div>
+    </div>
+
+    <script>
+        let isDarkMode = true;
+        let currentUser = null;
+        const daysOfWeek = ['الأحد', 'الإثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];
+        const todayName = daysOfWeek[new Date().getDay()];
+        let selectedDayFilter = todayName;
+
+        let appData = { year: '3AS', stream: 'science', timetableImage: null, streak: 0, lastActiveDate: '', tasks: {} };
+
+        const streamSubjects = {
+            science: { major: ['علوم الطبيعة والحياة', 'الرياضيات', 'الفيزياء والكيمياء'], minor: ['الفلسفة', 'اللغة العربية', 'الإنجليزية', 'الفرنسية', 'التاريخ والجغرافيا', 'الإسلامية'] },
+            math: { major: ['الرياضيات', 'الفيزياء والكيمياء', 'علوم الطبيعة والحياة'], minor: ['الفلسفة', 'اللغة العربية', 'الإنجليزية', 'الفرنسية', 'التاريخ والجغرافيا', 'الإسلامية'] },
+            tech_math: { major: ['التكنولوجيا', 'الرياضيات', 'الفيزياء والكيمياء'], minor: ['الفلسفة', 'اللغة العربية', 'الإنجليزية', 'الفرنسية', 'التاريخ والجغرافيا', 'الإسلامية'] },
+            gestion: { major: ['التسيير المحاسبي والمالي', 'الاقتصاد والمناجمنت', 'الرياضيات'], minor: ['القانون', 'الفلسفة', 'اللغة العربية', 'الإنجليزية', 'الفرنسية', 'التاريخ والجغرافيا'] },
+            letters: { major: ['اللغة العربية وآدابها', 'الفلسفة', 'اللغات الأجنبية'], minor: ['التاريخ والجغرافيا', 'الرياضيات', 'الإسلامية'] },
+            languages: { major: ['اللغة الإنجليزية', 'اللغة الفرنسية', 'اللغة العربية'], minor: ['الفلسفة', 'اللغة الأجنبية الثالثة', 'التاريخ والجغرافيا', 'الرياضيات'] }
+        };
+
+        const planLabels = {
+            '3m_350da': '3 أشهر — 350 DA',
+            '1y_700da': 'سنة كاملة — 700 DA'
+        };
+
+        function formatPlanLabel(planCode) {
+            return planLabels[planCode] || '3 أشهر — 350 DA';
+        }
+
+        function isTrialMode() {
+            return Boolean(currentUser && currentUser.isTrial);
+        }
+
+        function applyTrialBlurState() {
+            const trial = isTrialMode();
+            document.getElementById('trialUpgradeBanner').classList.toggle('hidden', !trial);
+            document.getElementById('trialTimetableBadge').classList.toggle('hidden', !trial);
+            document.getElementById('trialToolsBadge').classList.toggle('hidden', !trial);
+
+            const timetableContent = document.getElementById('trialTimetableContent');
+            const toolsContent = document.getElementById('trialToolsContent');
+            timetableContent.classList.toggle('trial-blur', trial);
+            toolsContent.classList.toggle('trial-blur', trial);
+        }
+
+        function refreshIcons() {
+            if (window.lucide) lucide.createIcons();
+        }
+
+        function escapeHTML(str) {
+            if (typeof str !== 'string') return '';
+            return str.replace(/[&<>"']/g, m => ({
+                '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+            })[m]);
+        }
+
+        function sanitizeURL(url) {
+            if (!url || typeof url !== 'string') return '';
+            const t = url.trim();
+            return /^https?:\/\//i.test(t) ? escapeHTML(t) : '';
+        }
+
+        function togglePassVisibility(inputId, btn) {
+            const input = document.getElementById(inputId);
+            input.type = input.type === 'password' ? 'text' : 'password';
+            btn.innerHTML = input.type === 'text'
+                ? '<i data-lucide="eye-off" class="w-4 h-4"></i>'
+                : '<i data-lucide="eye" class="w-4 h-4"></i>';
+            refreshIcons();
+        }
+
+        function checkPasswordStrength(pass) {
+            const bar = document.getElementById('passStrengthBar');
+            const text = document.getElementById('passStrengthText');
+            let score = 0;
+            if (pass.length >= 8) score++;
+            if (/[A-Z]/.test(pass) && /[a-z]/.test(pass)) score++;
+            if (/\d/.test(pass)) score++;
+            if (/[^A-Za-z0-9]/.test(pass)) score++;
+
+            if (!pass) {
+                bar.style.width = '0%';
+                text.innerText = 'قوة كلمة المرور: غير مدخلة';
+                text.className = 'text-[10px] text-zinc-400';
+            } else if (score <= 1) {
+                bar.style.width = '30%';
+                bar.className = 'h-full transition-all duration-300 bg-rose-500';
+                text.innerText = 'قوة كلمة المرور: ضعيفة';
+                text.className = 'text-[10px] text-rose-400';
+            } else if (score <= 3) {
+                bar.style.width = '68%';
+                bar.className = 'h-full transition-all duration-300 bg-amber-500';
+                text.innerText = 'قوة كلمة المرور: متوسطة';
+                text.className = 'text-[10px] text-amber-400';
+            } else {
+                bar.style.width = '100%';
+                bar.className = 'h-full transition-all duration-300 bg-emerald-500';
+                text.innerText = 'قوة كلمة المرور: قوية';
+                text.className = 'text-[10px] text-emerald-400';
+            }
+        }
+
+        function toggleThemeMode() {
+            isDarkMode = !isDarkMode;
+            const body = document.getElementById('bodyTheme');
+            const btnText = document.getElementById('themeBtnText');
+            const panels = document.querySelectorAll('.panel-dark, .panel-light');
+            const inputs = document.querySelectorAll('.input-dark, .input-light');
+
+            if (isDarkMode) {
+                body.className = 'bg-[#09090b] text-zinc-100 min-h-screen selection:bg-indigo-500 selection:text-white';
+                btnText.innerText = 'داكن';
+                panels.forEach(p => { p.classList.remove('panel-light'); p.classList.add('panel-dark'); });
+                inputs.forEach(i => { i.classList.remove('input-light'); i.classList.add('input-dark'); });
+            } else {
+                body.className = 'bg-slate-50 text-slate-900 min-h-screen selection:bg-indigo-600 selection:text-white';
+                btnText.innerText = 'فاتح';
+                panels.forEach(p => { p.classList.remove('panel-dark'); p.classList.add('panel-light'); });
+                inputs.forEach(i => { i.classList.remove('input-dark'); i.classList.add('input-light'); });
+            }
+            renderDayTabs();
+            renderDays();
+            refreshIcons();
+        }
+
+        function switchSection(sec) {
+            ['planner', 'setup', 'tools'].forEach(s => {
+                const el = document.getElementById(`section-${s}`);
+                const nav = document.getElementById(`nav-${s}`);
+                const active = s === sec;
+                el.classList.toggle('hidden', !active);
+                if (s === 'setup') el.classList.toggle('grid', active);
+                nav.className = active
+                    ? 'w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl bg-indigo-600/15 text-indigo-400 transition'
+                    : 'w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl opacity-75 hover:opacity-100 hover:bg-white/5 transition';
+            });
+
+            const titles = {
+                planner: 'الجدول والمهام المسائية',
+                setup: 'الشعبة والجدول المدرسي',
+                tools: 'النسخ والطباعة'
+            };
+            document.getElementById('sectionHeading').innerText = titles[sec];
+        }
+
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            const bg = type === 'success' ? 'bg-emerald-600' : type === 'error' ? 'bg-rose-600' : 'bg-zinc-800';
+            toast.className = `pointer-events-auto px-4 py-2.5 rounded-xl shadow-2xl text-white font-semibold text-xs ${bg} border border-white/15 transition-all duration-200`;
+            toast.innerText = message;
+            container.appendChild(toast);
+            setTimeout(() => {
+                toast.classList.add('opacity-0');
+                setTimeout(() => toast.remove(), 200);
+            }, 3500);
+        }
+
+        function playBeep(success = true) {
+            try {
+                const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.frequency.setValueAtTime(success ? 600 : 300, ctx.currentTime);
+                gain.gain.setValueAtTime(0.07, ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.22);
+                osc.connect(gain);
+                osc.connect(ctx.destination);
+                osc.start();
+                osc.stop(ctx.currentTime + 0.22);
+            } catch (e) {}
+        }
+
+        // Admin
+        function openAdminLoginModal() {
+            const m = document.getElementById('adminLoginModal');
+            m.classList.remove('hidden');
+            m.classList.add('flex');
+        }
+
+        function closeAdminLoginModal() {
+            const m = document.getElementById('adminLoginModal');
+            m.classList.add('hidden');
+            m.classList.remove('flex');
+        }
+
+        async function handleAdminLogin() {
+            const password = document.getElementById('adminPasswordInput').value;
+            try {
+                const res = await fetch('/api/admin/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ password })
+                });
+                const data = await res.json();
+                if (data.ok) {
+                    closeAdminLoginModal();
+                    document.getElementById('landingOverlay').classList.add('hidden');
+                    document.getElementById('adminPanelModal').classList.remove('hidden');
+                    renderAdminUsersTable();
+                    showToast('تم الدخول إلى لوحة الإدارة', 'success');
+                } else {
+                    showToast(data.error || 'كلمة المرور غير صحيحة', 'error');
+                }
+            } catch {
+                showToast('تعذر الاتصال بالخادم', 'error');
+            }
+        }
+
+        function closeAdminPanel() {
+            document.getElementById('adminPanelModal').classList.add('hidden');
+            location.reload();
+        }
+
+        async function renderAdminUsersTable() {
+            const tbody = document.getElementById('adminUsersTableBody');
+            tbody.innerHTML = '<tr><td colspan="8" class="p-4 text-center text-zinc-400">جاري التحميل...</td></tr>';
+
+            try {
+                const res = await fetch('/api/admin/users');
+                const data = await res.json();
+                if (!data.ok) return;
+
+                if (data.stats) {
+                    document.getElementById('admStatTotal').innerText = data.stats.total;
+                    document.getElementById('admStatActive').innerText = data.stats.active;
+                    document.getElementById('admStatPending').innerText = data.stats.pending;
+                    document.getElementById('admStatReceipt').innerText = data.stats.with_receipt;
+                    document.getElementById('admStatLogins').innerText = data.stats.total_logins;
+                }
+
+                tbody.innerHTML = '';
+                if (data.users.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="8" class="p-5 text-center text-zinc-400">لا توجد حسابات مسجلة بعد</td></tr>';
+                    return;
+                }
+
+                data.users.forEach(u => {
+                    const receipt = u.receipt_file
+                        ? `<a href="/uploads/${escapeHTML(u.receipt_file)}" target="_blank" rel="noopener noreferrer" class="text-indigo-400 underline font-semibold">عرض</a>`
+                        : `<span class="text-zinc-500">—</span>`;
+
+                    const planText = escapeHTML(formatPlanLabel(u.plan));
+
+                    tbody.innerHTML += `
+                        <tr>
+                            <td class="p-3 font-semibold">${escapeHTML(u.name)}</td>
+                            <td class="p-3 font-mono">${escapeHTML(u.phone)}</td>
+                            <td class="p-3 font-semibold text-emerald-300 num">${planText}</td>
+                            <td class="p-3 font-mono text-indigo-400">${escapeHTML(u.last_ip || '—')}</td>
+                            <td class="p-3 text-[11px] num">
+                                <div>${escapeHTML(u.last_login || 'لم يدخل')} (${Number(u.login_count) || 0})</div>
+                                <div class="text-[10px] text-zinc-500 truncate max-w-[170px]" title="${escapeHTML(u.user_agent || '')}">${escapeHTML((u.user_agent || '—').slice(0, 38))}</div>
+                            </td>
+                            <td class="p-3">${receipt}</td>
+                            <td class="p-3">
+                                <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold ${u.active ? 'bg-emerald-500/15 text-emerald-400' : 'bg-amber-500/15 text-amber-400'}">
+                                    ${u.active ? 'مفعل' : 'معلق'}
+                                </span>
+                            </td>
+                            <td class="p-3 flex gap-1.5">
+                                <button onclick="toggleUserActivation(${u.id})" class="px-2.5 py-1 rounded-lg font-semibold text-[11px] ${u.active ? 'bg-amber-600 hover:bg-amber-500 text-white' : 'bg-emerald-600 hover:bg-emerald-500 text-white'}">
+                                    ${u.active ? 'تعطيل' : 'تفعيل'}
+                                </button>
+                                <button onclick="deleteUser(${u.id})" class="px-2 py-1 rounded-lg bg-rose-600 hover:bg-rose-500 text-white text-[11px]">حذف</button>
+                            </td>
+                        </tr>
+                    `;
+                });
+            } catch {
+                showToast('خطأ في جلب البيانات', 'error');
+            }
+        }
+
+        async function toggleUserActivation(id) {
+            const res = await fetch(`/api/admin/toggle/${id}`, { method: 'POST' });
+            const data = await res.json();
+            if (data.ok) { renderAdminUsersTable(); showToast('تم تحديث الحالة', 'success'); }
+        }
+
+        async function deleteUser(id) {
+            if (!confirm('حذف هذا الحساب نهائياً؟')) return;
+            const res = await fetch(`/api/admin/delete/${id}`, { method: 'DELETE' });
+            const data = await res.json();
+            if (data.ok) { renderAdminUsersTable(); showToast('تم الحذف', 'info'); }
+        }
+
+        // Auth
+        function startFreeTrial() {
+            currentUser = { name: 'تجريبي', phone: 'trial', active: true, isTrial: true };
+            selectedDayFilter = 'الأحد';
+            document.getElementById('landingOverlay').classList.add('hidden');
+            document.getElementById('currentUserName').innerText = currentUser.name;
+            applyTrialBlurState();
+            loadStudyData();
+            showToast('النسخة التجريبية مفعّلة — بعض الخيارات والأوقات مشوّشة', 'info');
+        }
+
+        async function checkAuth() {
+            try {
+                const res = await fetch('/api/session');
+                const data = await res.json();
+                if (data.authenticated && data.user) {
+                    currentUser = data.user;
+                    document.getElementById('landingOverlay').classList.add('hidden');
+                    document.getElementById('currentUserName').innerText = currentUser.name;
+                    applyTrialBlurState();
+                    loadStudyData(currentUser.studyData);
+                }
+            } catch {}
+        }
+
+        function openAuthModal() {
+            document.getElementById('landingOverlay').classList.add('hidden');
+            const m = document.getElementById('authModal');
+            m.classList.remove('hidden');
+            m.classList.add('flex');
+        }
+
+        function closeAuthModal() {
+            const m = document.getElementById('authModal');
+            m.classList.add('hidden');
+            m.classList.remove('flex');
+            if (!currentUser) {
+                document.getElementById('landingOverlay').classList.remove('hidden');
+            }
+        }
+
+        function switchAuthTab(tab) {
+            const isLogin = tab === 'login';
+            document.getElementById('formLogin').classList.toggle('hidden', !isLogin);
+            document.getElementById('formRegister').classList.toggle('hidden', isLogin);
+            document.getElementById('tabLogin').className = isLogin ? 'py-2 rounded-lg bg-indigo-600 text-white transition' : 'py-2 rounded-lg text-zinc-400 hover:text-white transition';
+            document.getElementById('tabRegister').className = !isLogin ? 'py-2 rounded-lg bg-indigo-600 text-white transition' : 'py-2 rounded-lg text-zinc-400 hover:text-white transition';
+        }
+
+        async function handleLogin() {
+            const phone = document.getElementById('loginIdentifier').value.trim();
+            const password = document.getElementById('loginPassword').value;
+            const btn = document.getElementById('loginSubmitBtn');
+            btn.disabled = true;
+            btn.innerText = 'جاري الدخول...';
+
+            try {
+                const res = await fetch('/api/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ phone, password })
+                });
+                const data = await res.json();
+                if (data.ok) {
+                    currentUser = data.user;
+                    document.getElementById('authModal').classList.add('hidden');
+                    document.getElementById('currentUserName').innerText = currentUser.name;
+                    applyTrialBlurState();
+                    loadStudyData(currentUser.studyData);
+                    showToast('مرحباً بك', 'success');
+                } else {
+                    showToast(data.error || 'فشل الدخول', 'error');
+                }
+            } catch {
+                showToast('تعذر الاتصال بالخادم', 'error');
+            } finally {
+                btn.disabled = false;
+                btn.innerText = 'دخول';
+            }
+        }
+
+        async function handleRegister() {
+            const name = document.getElementById('regName').value.trim();
+            const phone = document.getElementById('regPhone').value.trim();
+            const password = document.getElementById('regPassword').value;
+            const plan = document.getElementById('regPlan').value;
+            const acceptTerms = document.getElementById('acceptTerms').checked;
+            const notRobot = document.getElementById('notRobot').checked;
+            const receipt = document.getElementById('regReceipt').files[0];
+            const btn = document.getElementById('regSubmitBtn');
+            const errBox = document.getElementById('regErrorBox');
+
+            errBox.classList.add('hidden');
+            errBox.innerText = '';
+
+            const fd = new FormData();
+            fd.append('name', name);
+            fd.append('phone', phone);
+            fd.append('password', password);
+            fd.append('plan', plan);
+            fd.append('acceptTerms', acceptTerms);
+            fd.append('notRobot', notRobot);
+            if (receipt) fd.append('receipt', receipt);
+
+            btn.disabled = true;
+            btn.innerText = 'جاري الإرسال...';
+
+            try {
+                const res = await fetch('/api/register', { method: 'POST', body: fd });
+                const data = await res.json();
+                if (data.ok) {
+                    showToast(data.message, 'success');
+                    document.getElementById('formRegister').reset();
+                    checkPasswordStrength('');
+                    switchAuthTab('login');
+                } else {
+                    const msg = data.error || 'تعذر إرسال الطلب';
+                    errBox.innerText = msg;
+                    errBox.classList.remove('hidden');
+                    showToast(msg, 'error');
+                }
+            } catch (err) {
+                console.error('Register error:', err);
+                const msg = `خطأ أثناء الإرسال: ${err.message || 'تعذر الاتصال بالخادم'}`;
+                errBox.innerText = msg;
+                errBox.classList.remove('hidden');
+                showToast(msg, 'error');
+            } finally {
+                btn.disabled = false;
+                btn.innerText = 'إرسال طلب الاشتراك';
+            }
+        }
+
+        async function handleLogout() {
+            await fetch('/api/logout', { method: 'POST' });
+            location.reload();
+        }
+
+        // Planner Logic
+        window.onload = () => {
+            refreshIcons();
+            checkAuth();
+            initCountdown();
+        };
+
+        async function saveStudyData() {
+            if (!currentUser) return;
+            updateAnalytics();
+            if (currentUser.isTrial) {
+                localStorage.setItem('studyPlannerData_trial', JSON.stringify(appData));
+                return;
+            }
+            try {
+                const res = await fetch('/api/study-data', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ studyData: JSON.stringify(appData) })
+                });
+                if (res.status === 401) {
+                    const err = await res.json();
+                    showToast(err.error || 'انتهت الجلسة', 'error');
+                    setTimeout(() => location.reload(), 1300);
+                }
+            } catch {}
+        }
+
+        function loadStudyData(serverData) {
+            if (!currentUser) return;
+            const raw = currentUser.isTrial ? localStorage.getItem('studyPlannerData_trial') : serverData;
+            if (raw && raw !== '{}') {
+                try {
+                    appData = JSON.parse(raw);
+                    document.getElementById('schoolYear').value = appData.year || '3AS';
+                    document.getElementById('schoolStream').value = appData.stream || 'science';
+                    if (appData.timetableImage) document.getElementById('imagePreviewContainer').classList.remove('hidden');
+                } catch {
+                    generateWeeklyPlan();
+                }
+            } else {
+                generateWeeklyPlan();
+            }
+            renderDayTabs();
+            renderDays();
+            updateAnalytics();
+        }
+
+        function updateStreamMaterials() {
+            generateWeeklyPlan();
+            showToast('تم تحديث المواد وتوليد الأسبوع', 'success');
+            switchSection('planner');
+        }
+
+        function generateWeeklyPlan() {
+            appData.year = document.getElementById('schoolYear').value;
+            appData.stream = document.getElementById('schoolStream').value;
+            const info = streamSubjects[appData.stream] || streamSubjects.science;
+            appData.tasks = {};
+
+            daysOfWeek.forEach((day, idx) => {
+                const m1 = info.major[idx % info.major.length];
+                const m2 = info.major[(idx + 1) % info.major.length];
+                const min = info.minor[idx % info.minor.length];
+
+                appData.tasks[day] = [
+                    { id: `t1_${Date.now()}_${idx}`, subject: m1, category: 'أساسية • 2س', duration: 2, time: '18:30 - 20:30', details: 'ملخص الدرس + تمارين', checked: false, link: '', resourceNote: '' },
+                    { id: `t2_${Date.now()}_${idx}`, subject: m2, category: 'أساسية • 2س', duration: 2, time: '20:45 - 22:45', details: 'تطبيقات وبكالوريات', checked: false, link: '', resourceNote: '' },
+                    { id: `t3_${Date.now()}_${idx}`, subject: min, category: 'ثانوية • 1.5س', duration: 1.5, time: '23:00 - 00:30', details: 'حفظ ومراجعة سريعة', checked: false, link: '', resourceNote: '' }
+                ];
+            });
+
+            saveStudyData();
+            renderDayTabs();
+            renderDays();
+        }
+
+        function renderDayTabs() {
+            const bar = document.getElementById('dayTabsBar');
+            if (isTrialMode()) {
+                bar.innerHTML = `<button class="px-3.5 py-1.5 rounded-xl bg-indigo-600 text-white text-xs font-semibold">الأحد (تجريبي)</button>`;
+                return;
+            }
+
+            const tabs = ['الكل', ...daysOfWeek];
+            bar.innerHTML = tabs.map(t => {
+                const active = selectedDayFilter === t;
+                const badge = t === todayName ? `<span class="text-[10px] opacity-80">• اليوم</span>` : '';
+                return `
+                    <button onclick="selectDayTab('${t}')" class="px-3.5 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition ${
+                        active
+                            ? 'bg-indigo-600 text-white'
+                            : (isDarkMode ? 'bg-zinc-900 text-zinc-400 hover:text-white border border-white/5' : 'bg-white text-slate-600 hover:text-slate-900 border border-slate-200')
+                    }">
+                        ${t} ${badge}
+                    </button>
+                `;
+            }).join('');
+        }
+
+        function selectDayTab(t) {
+            selectedDayFilter = t;
+            renderDayTabs();
+            renderDays();
+        }
+
+        function renderDays() {
+            const container = document.getElementById('daysContainer');
+            container.innerHTML = '';
+            const trial = isTrialMode();
+
+            let list = daysOfWeek;
+            if (trial) {
+                list = ['الأحد'];
+            } else if (selectedDayFilter !== 'الكل') {
+                list = [selectedDayFilter];
+            }
+
+            const panelCls = isDarkMode ? 'panel-dark' : 'panel-light';
+            const inputCls = isDarkMode ? 'input-dark' : 'input-light';
+            const gridCols = list.length === 1 ? 'grid-cols-1 max-w-2xl' : 'grid-cols-1 md:grid-cols-2 xl:grid-cols-3';
+            container.className = `grid ${gridCols} gap-4`;
+
+            list.forEach(day => {
+                const tasks = appData.tasks[day] || [];
+                const items = tasks.map(t => {
+                    const sub = escapeHTML(t.subject);
+                    const cat = escapeHTML(t.category);
+                    const tm = escapeHTML(t.time);
+                    const det = escapeHTML(t.details);
+                    const resNote = escapeHTML(t.resourceNote || '');
+                    const safeUrl = sanitizeURL(t.link || '');
+                    const blurClass = trial ? 'trial-blur' : '';
+
+                    return `
+                        <div class="p-3.5 rounded-xl border ${t.checked ? 'border-emerald-500/30 bg-emerald-500/[0.04]' : (isDarkMode ? 'border-white/10 bg-white/[0.02]' : 'border-slate-200 bg-slate-50/80')} space-y-2.5 transition">
+                            <div class="flex items-center justify-between gap-2">
+                                <label class="flex items-center gap-2.5 cursor-pointer">
+                                    <input type="checkbox" ${t.checked ? 'checked' : ''} onchange="toggleTask('${day}', '${escapeHTML(t.id)}')" class="w-4 h-4 rounded accent-indigo-500">
+                                    <span class="font-bold text-xs sm:text-sm ${t.checked ? 'line-through opacity-55' : ''}">${sub}</span>
+                                </label>
+                                <span class="text-[10px] font-semibold px-2 py-0.5 rounded-md bg-indigo-500/10 text-indigo-400 ${blurClass}">${cat}</span>
+                            </div>
+
+                            <div class="flex items-center justify-between gap-2 text-[11px] opacity-75 num">
+                                <span class="${blurClass}">${tm}</span>
+                                <input type="text" value="${det}" onchange="updateTaskField('${day}', '${escapeHTML(t.id)}', 'details', this.value)" class="${inputCls} w-1/2 px-2 py-1 rounded-lg text-[11px] outline-none ${blurClass}" placeholder="ملاحظة...">
+                            </div>
+
+                            <div class="flex items-center gap-1.5 ${blurClass}">
+                                <input type="text" value="${resNote}" onchange="updateTaskField('${day}', '${escapeHTML(t.id)}', 'resourceNote', this.value)" class="${inputCls} flex-1 px-2 py-1 rounded-lg text-[11px] outline-none" placeholder="أستاذ أو قناة...">
+                                <input type="url" value="${safeUrl}" onchange="updateTaskLink('${day}', '${escapeHTML(t.id)}', this.value)" class="${inputCls} flex-1 px-2 py-1 rounded-lg text-[11px] outline-none" placeholder="رابط (https://...)">
+                                <button onclick="deleteTask('${day}', '${escapeHTML(t.id)}')" class="text-rose-400 hover:text-rose-300 px-1.5 py-1 no-print">
+                                    <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+
+                container.innerHTML += `
+                    <div class="${panelCls} rounded-2xl p-4 space-y-3">
+                        <div class="flex items-center justify-between pb-2.5 border-b border-white/10">
+                            <div class="flex items-center gap-2">
+                                <span class="font-bold text-sm">${day}</span>
+                                ${day === todayName ? '<span class="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400 font-semibold">اليوم</span>' : ''}
+                            </div>
+                            <button onclick="addNewTaskModal('${day}')" class="px-2.5 py-1 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold flex items-center gap-1 no-print transition ${trial ? 'trial-blur' : ''}">
+                                <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+                                <span>مهمة</span>
+                            </button>
+                        </div>
+                        <div class="space-y-2.5">${items || '<div class="text-xs opacity-50 text-center py-4">لا توجد مهام لهذا اليوم</div>'}</div>
+                    </div>
+                `;
+            });
+            refreshIcons();
+        }
+
+        function toggleTask(day, id) {
+            const t = appData.tasks[day]?.find(x => x.id === id);
+            if (!t) return;
+            t.checked = !t.checked;
+            playBeep(t.checked);
+            const today = new Date().toDateString();
+            if (t.checked && appData.lastActiveDate !== today) {
+                appData.streak = (appData.streak || 0) + 1;
+                appData.lastActiveDate = today;
+                showToast('أحسنت! زادت استمراريتك', 'success');
+            }
+            saveStudyData();
+            renderDays();
+        }
+
+        function updateTaskField(day, id, field, val) {
+            if (isTrialMode()) return;
+            const t = appData.tasks[day]?.find(x => x.id === id);
+            if (t) { t[field] = val; saveStudyData(); }
+        }
+
+        function updateTaskLink(day, id, val) {
+            if (isTrialMode()) return;
+            const t = appData.tasks[day]?.find(x => x.id === id);
+            if (!t) return;
+            if (val.trim() && !/^https?:\/\//i.test(val.trim())) {
+                showToast('الرابط يجب أن يبدأ بـ http:// أو https://', 'error');
+                return;
+            }
+            t.link = val.trim();
+            saveStudyData();
+        }
+
+        function deleteTask(day, id) {
+            if (isTrialMode()) return;
+            if (!appData.tasks[day]) return;
+            appData.tasks[day] = appData.tasks[day].filter(x => x.id !== id);
+            saveStudyData();
+            renderDays();
+            showToast('تم حذف المهمة', 'info');
+        }
+
+        function addNewTaskModal(day) {
+            if (isTrialMode()) return;
+            const name = prompt('اسم المادة:');
+            if (!name || !name.trim()) return;
+            if (!appData.tasks[day]) appData.tasks[day] = [];
+            appData.tasks[day].push({
+                id: `c_${Date.now()}`,
+                subject: name.trim().slice(0, 70),
+                category: 'أساسية • 2س',
+                duration: 2,
+                time: '18:30 - 20:30',
+                details: 'مراجعة مخصصة',
+                checked: false,
+                link: '',
+                resourceNote: ''
+            });
+            saveStudyData();
+            renderDays();
+            showToast('تمت الإضافة', 'success');
+        }
+
+        function updateAnalytics() {
+            let total = 0, done = 0, hours = 0;
+            Object.values(appData.tasks || {}).forEach(dayList => {
+                dayList.forEach(t => {
+                    total++;
+                    if (t.checked) { done++; hours += (Number(t.duration) || 2); }
+                });
+            });
+            const pct = total === 0 ? 0 : Math.round((done / total) * 100);
+            document.getElementById('weeklyProgressText').innerText = `${pct}%`;
+            document.getElementById('weeklyProgressBar').style.width = `${pct}%`;
+            document.getElementById('statTotalTasks').innerText = total;
+            document.getElementById('statCompletedTasks').innerText = done;
+            document.getElementById('statCompletedHours').innerText = `${hours}h`;
+            document.getElementById('statStreakDays').innerText = `${appData.streak || 0}d`;
+            document.getElementById('streakCount').innerText = `${appData.streak || 0}d`;
+        }
+
+        function analyzeTimetableWithAI() {
+            if (isTrialMode()) return;
+            const input = document.getElementById('timetableImageInput');
+            if (!input.files || !input.files[0]) {
+                showToast('اختر صورة الجدول أولاً', 'error');
+                return;
+            }
+            const reader = new FileReader();
+            reader.onload = e => {
+                appData.timetableImage = e.target.result;
+                document.getElementById('imagePreviewContainer').classList.remove('hidden');
+                generateWeeklyPlan();
+                showToast('تم حفظ الجدول وتوليد المهام', 'success');
+            };
+            reader.readAsDataURL(input.files[0]);
+        }
+
+        function viewFullImage() {
+            if (appData.timetableImage && appData.timetableImage.startsWith('data:image/')) {
+                document.getElementById('modalImgSrc').src = appData.timetableImage;
+                const m = document.getElementById('imageModal');
+                m.classList.remove('hidden');
+                m.classList.add('flex');
+            }
+        }
+
+        function closeImageModal() {
+            const m = document.getElementById('imageModal');
+            m.classList.add('hidden');
+            m.classList.remove('flex');
+        }
+
+        function exportDataJSON() {
+            if (isTrialMode()) return;
+            const blob = new Blob([JSON.stringify(appData, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `modakerati_${currentUser ? currentUser.phone : 'backup'}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+            showToast('تم تصدير النسخة الاحتياطية', 'success');
+        }
+
+        function importDataJSON(e) {
+            if (isTrialMode()) return;
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = ev => {
+                try {
+                    const parsed = JSON.parse(ev.target.result);
+                    if (parsed && typeof parsed.tasks === 'object') {
+                        appData = parsed;
+                        saveStudyData();
+                        renderDays();
+                        showToast('تم استيراد البيانات', 'success');
+                    } else throw new Error();
+                } catch {
+                    showToast('ملف غير صالح', 'error');
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        function initCountdown() {
+            const bac = new Date('June 6, 2027 08:00:00').getTime();
+            setInterval(() => {
+                const diff = bac - Date.now();
+                if (diff > 0) {
+                    const d = Math.floor(diff / 86400000);
+                    const h = Math.floor((diff % 86400000) / 3600000);
+                    document.getElementById('countdownTimer').innerText = `${d}ي ${h}س`;
+                } else {
+                    document.getElementById('countdownTimer').innerText = 'البكالوريا';
+                }
+            }, 1000);
+        }
+
+        function togglePomodoroMenu() {
+            document.getElementById('pomodoroMenu').classList.toggle('hidden');
+        }
+
+        let pomTimer = null, pomLeft = 1500, pomRunning = false;
+        function startPomodoro() {
+            if (pomRunning) return;
+            pomRunning = true;
+            pomTimer = setInterval(() => {
+                if (pomLeft > 0) {
+                    pomLeft--;
+                    const m = String(Math.floor(pomLeft / 60)).padStart(2, '0');
+                    const s = String(pomLeft % 60).padStart(2, '0');
+                    document.getElementById('pomodoroDisplay').innerText = `${m}:${s}`;
+                } else {
+                    playBeep(true);
+                    showToast('انتهت جلسة التركيز!', 'success');
+                    resetPomodoro();
+                }
+            }, 1000);
+        }
+        function pausePomodoro() { pomRunning = false; clearInterval(pomTimer); }
+        function resetPomodoro() { pomRunning = false; clearInterval(pomTimer); pomLeft = 1500; document.getElementById('pomodoroDisplay').innerText = '25:00'; }
+    </script>
+</body>
+</html>
